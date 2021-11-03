@@ -12,7 +12,8 @@ def main():
     #     game_board = MiniBoard()  # Create a MiniBoard object.
     # else:
     #     game_board = TTTBoard()  # Create a TTTBoard object.
-    game_board = HintBoard()
+    # game_board = HintBoard()
+    game_board = HybridBoard()
     current_player, next_player = X, O  # X goes first, O goes next.
     while True:
         print(game_board.get_board_str())
@@ -143,6 +144,28 @@ class HintBoard(TTTBoard):
             board_str += '\nO can win in one more move.'
         self._spaces = original_spaces
         return board_str
+
+
+class HybridBoard(HintBoard, MiniBoard):
+    """Multiple inheritance with no code whose only purpose is to combine a mini board with hints.
+        When we call get_board_str() on a HybridBoard object, Python knows that
+    the HybridBoard class doesn’t have a method with this name, so it checks
+    its parent class. But which of the two parent classes gets called? Let's check the MRO.
+
+    METHOD RESOLUTION ORDER
+    -----------------------
+    HybridBoard.mro()
+    [<class 'tictactoe_oop.HybridBoard'>, <class 'tictactoe_oop.HintBoard'>,
+    <class 'tictactoe_oop.MiniBoard'>, <class 'tictactoe_oop.TTTBoard'>, <class 'object'>]
+
+    - Python checks child classes before parent classes.
+    - Python checks inherited classes listed left to right in the class statement.
+
+    Python’s super() function doesn’t return the parent class but rather the next class in the MRO.
+    The call to super().get_board_str() in HintBoard in this case calls the MiniBoard class’s get_board_str() method
+    (not the parent class TTTBoard!).
+    """
+    pass
 
 
 if __name__ == '__main__':
