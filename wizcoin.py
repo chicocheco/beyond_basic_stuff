@@ -1,3 +1,7 @@
+import collections.abc
+import operator
+
+
 class WizCoinException(Exception):
     """The wizcoin module raises this when the module is misused."""
     pass
@@ -40,6 +44,41 @@ class WizCoin:
         """Total value (in knuts) of all the coins in this WizCoin object."""
         # Read-only property (when there is no setter or deleter method for e.g. 'total') so you can't do wc.total = 100
         return (self.galleons * 17 * 29) + (self.sickles * 29) + self.knuts
+
+    # comparison dunder methods
+    def _comparison_operator_helper(self, operator_func, other):  # higher-order function
+        """A helper method for our comparison dunder methods."""
+        if isinstance(other, WizCoin):
+            return operator_func(self.total, other.total)
+        elif isinstance(other, (int, float)):
+            return operator_func(self.total, other)
+        elif isinstance(other, collections.abc.Sequence):
+            other_value = (other[0] * 17 * 29) + (other[1] * 29) + other[2]
+            return operator_func(self.total, other_value)
+        elif operator_func == operator.eq:
+            return False
+        elif operator_func == operator.ne:
+            return True
+        else:
+            return NotImplemented
+
+    def __eq__(self, other):  # eq is "EQual"
+        return self._comparison_operator_helper(operator.eq, other)
+
+    def __ne__(self, other):  # ne is "Not Equal"
+        return self._comparison_operator_helper(operator.ne, other)
+
+    def __lt__(self, other):  # lt is "Less Than"
+        return self._comparison_operator_helper(operator.lt, other)
+
+    def __le__(self, other):  # le is "Less than or Equal"
+        return self._comparison_operator_helper(operator.le, other)
+
+    def __gt__(self, other):  # gt is "Greater Than"
+        return self._comparison_operator_helper(operator.gt, other)
+
+    def __ge__(self, other):  # ge is "Greater than or Equal"
+        return self._comparison_operator_helper(operator.ge, other)
 
 
 """
